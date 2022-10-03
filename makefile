@@ -1,6 +1,6 @@
 .PHONY: run
 run:
-	go run cmd/http/main.go
+	./scrypts/run_app.sh
 
 .PHONY: build
 build:
@@ -13,3 +13,8 @@ build-and-run: build
 .PHONY: remove-build
 remove-build:
 	rm -r build
+
+
+.PHONY: run-mongo
+run-mongo:
+	./scrypts/run_mongo.sh

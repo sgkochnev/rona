@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,20 +10,23 @@ import (
 	"github.com/sgkochnev/rona/pkg/httpserver"
 	"github.com/sgkochnev/rona/pkg/logger"
 
-	"github.com/sgkochnev/rona/internal/controller/http/v1"
+	v1 "github.com/sgkochnev/rona/internal/controller/http/v1"
+	"github.com/sgkochnev/rona/internal/repo"
+	"github.com/sgkochnev/rona/internal/usecase"
 )
 
 func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 
-	// TODO initialize repo
+	r, err := repo.NewStore(cfg)
+	if err != nil {
+		l.Error("error: initialization repository failed: %v", err)
+	}
 
-	// TODO initialize usecase
+	uc := usecase.NewManager(r, []byte(cfg.Secret.SignedKey))
+	// handler := http.NewServeMux()
 
-	handler := http.NewServeMux()
-
-	v1.NewRouter(handler, l, nil)
-	// TODO initialize controller
+	handler := v1.NewRouter(l, uc)
 
 	httpServer := httpserver.New(handler, httpserver.Port(cfg.HTTP.Port))
 
@@ -35,11 +37,10 @@ func Run(cfg *config.Config) {
 	case s := <-interrupt:
 		l.Info("app - Run - signal: " + s.String())
 	case err := <-httpServer.Notify():
-		l.Error(fmt.Errorf("app - Run -httpServer.Notify: %w", err))
+		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
 	}
 
-	err := httpServer.Shutdown()
-	if err != nil {
+	if err := httpServer.Shutdown(); err != nil {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 	}
 }
