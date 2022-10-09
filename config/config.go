@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -10,6 +9,8 @@ type Config struct {
 	App
 	HTTP
 	Log
+	Mongo
+	Secret
 }
 
 type App struct {
@@ -18,11 +19,21 @@ type App struct {
 }
 
 type HTTP struct {
-	Port string `env-required:"true" yaml:"port" env:"HTTP_PORT"`
+	Port string `env-required:"true" yaml:"http_port" env:"HTTP_PORT"`
 }
 
 type Log struct {
 	Level string `env-required:"true" yaml:"log_level" env:"LOG_LEVEL"`
+}
+
+type Mongo struct {
+	URI        string `env-required:"true" yaml:"mongo_uri" env:"MONGO_URI"`
+	Collection string `env-required:"true" yaml:"mongo_collection" env:"MONGO_COLLECTION"`
+	Name       string `env-required:"true" yaml:"mongo_db_name" env:"MONGO_DB_NAME"`
+}
+
+type Secret struct {
+	SignedKey string `env-required:"true" yaml:"signed_key" env:"SIGNED_KEY"`
 }
 
 func New() (*Config, error) {
@@ -32,7 +43,7 @@ func New() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
 	}
-	fmt.Printf("%s %s", cfg.Port, cfg.Level)
+	fmt.Printf("%s %s\n", cfg.HTTP.Port, cfg.Log.Level)
 
 	err = cleanenv.ReadEnv(cfg)
 	if err != nil {

@@ -3,7 +3,11 @@ app:
   version: '0.0.1'
 
 http:
-  port: '8080'
+  http_port: '8080'
 
 log:
   log_level: 'debug'
+
+mongo:
+  mongo_db_name: 'auth'
+  mongo_collection: 'user'
