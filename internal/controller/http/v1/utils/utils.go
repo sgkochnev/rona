@@ -58,7 +58,9 @@ func ResponseJSONWithErr(w http.ResponseWriter, code int) {
 
 func WriteToken(w http.ResponseWriter, token *entity.Token) {
 	cookie := &http.Cookie{
+		Name:     "RefreshToken",
 		HttpOnly: true,
+		Secure:   true,
 		Value:    token.RefreshToken.Value,
 		Expires:  time.Now().AddDate(0, 0, 14),
 	}
